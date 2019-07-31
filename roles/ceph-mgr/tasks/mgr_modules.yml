@@ -5,7 +5,11 @@
   when: dashboard_enabled | bool
 
 - name: wait for all mgr to be up
-  shell: "{{ container_exec_cmd_mgr | default('') }} ceph --cluster {{ cluster }} mgr dump -f json | python -c 'import sys, json; print(json.load(sys.stdin)[\"available\"])'"
+  shell: |
+    set -o pipefail;
+    {{ container_exec_cmd_mgr | default('') }} ceph --cluster {{ cluster }} mgr dump -f json | python -c 'import sys, json; print(json.load(sys.stdin)["available"])'
+  args:
+    executable: /bin/bash
   register: mgr_dump
   retries: 30
   delay: 5
