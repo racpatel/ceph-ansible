@@ -60,11 +60,13 @@
   shell: |
     {{ container_exec_cmd }} ceph config set mgr mgr/dashboard/server_port {{ dashboard_port }} || \
     {{ container_exec_cmd }} ceph config-key set mgr/dashboard/server_port {{ dashboard_port }}
+  changed_when: false
   delegate_to: "{{ groups[mon_group_name][0] }}"
 
 - name: "set the dashboard SSL port ({{ dashboard_port }})"
   command: "{{ container_exec_cmd }} ceph config set mgr mgr/dashboard/ssl_server_port {{ dashboard_port }}" # Do not use the old fashioned config-key way ssl_server_port, it was not supported when this option was introduced
   delegate_to: "{{ groups[mon_group_name][0] }}"
+  changed_when: false
   failed_when: false # Do not fail if the option does not exist, it only exists post-14.2.0
 
 - name: disable mgr dashboard module (restart)
@@ -88,6 +90,7 @@
   delay: 5
   register: ac_result
   delegate_to: "{{ groups[mon_group_name][0] }}"
+  changed_when: false
   until: ac_result.rc == 0
 
 - name: set grafana url
